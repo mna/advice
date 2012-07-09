@@ -133,4 +133,47 @@ describe('advice', function() {
       expect(spyAfter.calledAfter(spyBase)).to.be(true)
     })
   })
+
+  describe('.around()', function() {
+    it('should be a function on the augmented object', function() {
+      var obj = {}
+      sut.call(obj)
+      expect(obj.after).to.be.a('function')
+    })
+
+    it('should call the new method with the original method as first argument', function() {
+      var obj = {
+          fn: function(a) {
+            return a + 'original'
+          }
+        },
+        aroundFn = function(baseFn, a) {
+          a = a + 'ar'
+          return baseFn(a) + 'ound'
+        },
+        spy = sinon.spy(aroundFn)
+
+        sut.call(obj)
+        obj.around('fn', spy)
+        
+        expect(obj.fn('vide')).to.be('videaroriginalound')
+        expect(spy.calledOnce).to.be(true)
+    })
+  })
+
+  describe('.hijackBefore()', function() {
+    it('should be a function on the augmented object', function() {
+      var obj = {}
+      sut.call(obj)
+      expect(obj.hijackBefore).to.be.a('function')
+    })
+
+    it('should call the hijack method before the original', function(done) {
+      var obj = {
+        doAsync: function(text, cb) {
+          
+        }
+      }
+    })
+  })
 })
