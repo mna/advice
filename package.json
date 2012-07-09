@@ -1,11 +1,10 @@
 {
-    "name": ""
-  , "description": ""
+    "name": "advice"
+  , "description": "Advice functional mixin based on Twitter's Angus Croll presentation (How we learned to stop worrying and love Javascript)."
   , "version": "0.1.0"
   , "author": "Martin Angers <martin.n.angers@gmail.com>"
-  , "private": true
+  , "private": false
   , "dependencies": {
-
   }
   , "devDependencies": {
     "mocha": "1.x"
@@ -14,8 +13,8 @@
   }
   , "scripts": {
     "test": "make test"
-  , "start": "make run"
   }
+  , "main": "./index"
   , "engines": { 
     "node": ">= 0.6"
   }

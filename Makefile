@@ -1,6 +1,6 @@
 .DEFAULT_GOAL = run
 REPORTER = spec
-TESTS = test/*.js
+TESTS = test/*.test.js
 TEST_COVERAGE = test/coverage.html
 GREP = .
 
@@ -8,7 +8,7 @@ test:
 	@TEST=1 ./node_modules/.bin/mocha --reporter $(REPORTER) --grep $(GREP) $(TESTS)
 
 test-cov: lib-cov
-	@XCOV=1 $(MAKE) -s test REPORTER=html-cov > $(TEST_COVERAGE) && open $(TEST_COVERAGE)
+	@ADV_COV=1 $(MAKE) -s test REPORTER=html-cov > $(TEST_COVERAGE) && open $(TEST_COVERAGE)
 
 lib-cov:
 	@jscoverage lib lib-cov

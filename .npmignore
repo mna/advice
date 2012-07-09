@@ -1,0 +1,8 @@
+lib-cov/
+*.sublime-*
+.DS_Store
+test/
+Makefile
+*.md
+.jshintrc
+.git*
