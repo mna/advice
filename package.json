@@ -1,0 +1,22 @@
+{
+    "name": ""
+  , "description": ""
+  , "version": "0.1.0"
+  , "author": "Martin Angers <martin.n.angers@gmail.com>"
+  , "private": true
+  , "dependencies": {
+
+  }
+  , "devDependencies": {
+    "mocha": "1.x"
+  , "expect.js": "0.x"
+  , "sinon": "1.x"
+  }
+  , "scripts": {
+    "test": "make test"
+  , "start": "make run"
+  }
+  , "engines": { 
+    "node": ">= 0.6"
+  }
+}
