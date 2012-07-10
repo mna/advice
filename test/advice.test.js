@@ -225,6 +225,38 @@ describe('advice', function() {
     })
   })
 
+  describe('happy mix', function() {
+    it('should allow before and after on the same method', function() {
+      var str = 'test',
+        obj = {
+          base: function(v) {
+            str += 'base'
+            return str
+          }
+        },
+        fnAfter = function(v) {
+          str += 'after'
+          return str
+        },
+        fnBefore = function(v) {
+          str += 'before'
+          return str
+        },
+        spyBase = sinon.spy(obj, 'base'),
+        spyAfter = sinon.spy(fnAfter),
+        spyBefore = sinon.spy(fnBefore)
+
+      sut.call(obj)
+      obj.before('base', spyBefore)
+      obj.after('base', spyAfter)
+      expect(obj.base(str)).to.be('testbeforebase')
+      expect(str).to.be('testbeforebaseafter')
+      expect(spyBase.calledOnce).to.be(true)
+      expect(spyBefore.calledOnce).to.be(true)
+      expect(spyAfter.calledOnce).to.be(true)
+    })
+  })
+
   describe('.hijackBefore()', function() {
     it('should be a function on the augmented object', function() {
       var obj = {}
@@ -261,6 +293,149 @@ describe('advice', function() {
           expect(spyHijack.calledOnce).to.be(true)
           done()
         })
+      })
+    })
+
+    it('should not call the base if before gets an error', function(done) {
+      var str = 'test',
+        obj = {
+          base: function(text, cb) {
+            str += 'base'
+            cb(null, str)
+          }
+        },
+        hijack = function(text, cb) {
+          str += 'hijack'
+          cb(new Error(), str)
+        },
+        spyBase = sinon.spy(obj, 'base'),
+        spyHijack = sinon.spy(hijack)
+
+      sut.call(obj)
+      obj.hijackBefore('base', spyHijack, true)
+      obj.base(str, function(er, text) {
+        expect(er).to.be.ok()
+        expect(spyBase.callCount).to.be(0)
+        expect(spyHijack.calledOnce).to.be(true)
+        done()
+      })
+    })
+
+    it('should call the hijack method with the same args as passed to the original', function(done) {
+      var str = 'test',
+        num = 8,
+        dt = new Date(),
+        bool = true,
+        obj = {
+          base: function(str, num, dt, bool, cb) {
+            cb()
+          }
+        },
+        hijack = function(str, num, dt, bool, cb) {
+          cb()
+        },
+        spyBase = sinon.spy(obj, 'base'),
+        spyHijack = sinon.spy(hijack)
+
+      sut.call(obj)
+      obj.hijackBefore('base', spyHijack)
+      obj.base(str, num, dt, bool, function() {
+        expect(spyBase.calledOnce).to.be(true)
+        expect(spyBase.calledWith(str, num, dt, bool)).to.be(true)
+        expect(spyHijack.calledOnce).to.be(true)
+        expect(spyHijack.calledWith(str, num, dt, bool)).to.be(true)
+        done()
+      })
+    })
+  })
+
+  describe('.hijackAfter()', function() {
+    it('should be a function on the augmented object', function() {
+      var obj = {}
+      sut.call(obj)
+      expect(obj.hijackAfter).to.be.a('function')
+    })
+
+    it('should call the hijack method after the original', function(done) {
+      var str = 'test',
+        obj = {
+          base: function(text, cb) {
+            str += 'base'
+            cb(str)
+          }
+        },
+        hijack = function(text, cb) {
+          str += 'hijack'
+          cb(str)
+        },
+        spyBase = sinon.spy(obj, 'base'),
+        spyHijack = sinon.spy(hijack)
+
+      sut.call(obj)
+      obj.base(str, function(text) {
+        expect(text).to.be('testbase')
+        expect(str).to.be('testbase')
+
+        str = 'test'
+        obj.hijackAfter('base', spyHijack)
+        obj.base(str, function(text) {
+          expect(text).to.be('testbasehijack')
+          // Called twice because once without hijack
+          expect(spyBase.calledTwice).to.be(true)
+          expect(spyHijack.calledOnce).to.be(true)
+          done()
+        })
+      })
+    })
+
+    it('should not get called if the base gets an error', function(done) {
+      var str = 'test',
+        obj = {
+          base: function(text, cb) {
+            str += 'base'
+            cb(new Error())
+          }
+        },
+        hijack = function(text, cb) {
+          str += 'hijack'
+        },
+        spyBase = sinon.spy(obj, 'base'),
+        spyHijack = sinon.spy(hijack)
+
+      sut.call(obj)
+      obj.hijackAfter('base', spyHijack, true)
+      obj.base(str, function(er, text) {
+        expect(er).to.be.ok()
+        expect(spyBase.calledOnce).to.be(true)
+        expect(spyHijack.callCount).to.be(0)
+        done()
+      })
+    })
+
+    it('should call the hijack method with the same args as passed to the original', function(done) {
+      var str = 'test',
+        num = 8,
+        dt = new Date(),
+        bool = true,
+        obj = {
+          base: function(str, num, dt, bool, cb) {
+            cb()
+          }
+        },
+        hijack = function(str, num, dt, bool, cb) {
+          cb()
+        },
+        spyBase = sinon.spy(obj, 'base'),
+        spyHijack = sinon.spy(hijack)
+
+      sut.call(obj)
+      obj.hijackAfter('base', spyHijack)
+      obj.base(str, num, dt, bool, function() {
+        expect(spyBase.calledOnce).to.be(true)
+        expect(spyBase.calledWith(str, num, dt, bool)).to.be(true)
+        expect(spyHijack.calledOnce).to.be(true)
+        expect(spyHijack.calledWith(str, num, dt, bool)).to.be(true)
+        done()
       })
     })
   })

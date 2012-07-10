@@ -43,6 +43,13 @@ Wraps the method identified by `methodName` so that `fn` gets called before `met
 
 Wraps the method identified by `methodName` so that `fn` gets called after `methodName`. The return value is the return value of the **original** `methodName` function.
 
+### .around(methodName, fn)
+
+Wraps the method identified by `methodName` and passes the original method as first argument. It is up to the new method to decide when to call the original method, and what return value to return.
+
+### .hijackBefore(methodName, fn[, firstArgIsError])
+
+Wraps the method identified by `methodName` so that when it gets called, the new method is called first. It basically chains the methods in this order: newFn->privateCb->oriFn->oriCb. It presumes the last argument is a callback function. If the new method returns an error as first argument, and `firstArgIsError` is set to `true`, then the base method is skipped and the error is sent to the original callback as first argument.
 
 [croll]: https://github.com/angus-c/
 [slides]: https://speakerdeck.com/u/anguscroll/p/how-we-learned-to-stop-worrying-and-love-javascript
