@@ -76,6 +76,38 @@ describe('advice', function() {
       expect(spyBefore.calledOnce).to.be(true)
       expect(spyBefore.calledBefore(spyBase)).to.be(true)
     })
+
+    it('should allow multiple before functions', function() {
+      var num = 0,
+        obj = {
+          fn: function(val) {
+            num += val * 2
+            return num
+          }
+        },
+        beforeFn = function(val) {
+          num += val
+          return num
+        },
+        beforeFn2 = function(val) {
+          num += val + 1
+          return num
+        },
+        spyBase = sinon.spy(obj, 'fn'),
+        spyBefore = sinon.spy(beforeFn),
+        spyBefore2 = sinon.spy(beforeFn2)
+
+      sut.call(obj)
+      obj.before('fn', spyBefore)
+      obj.before('fn', spyBefore2)
+
+      expect(obj.fn(3)).to.be(13)
+      expect(spyBase.calledOnce).to.be(true)
+      expect(spyBefore.calledOnce).to.be(true)
+      expect(spyBefore2.calledOnce).to.be(true)
+      expect(spyBefore.calledBefore(spyBase)).to.be(true)
+      expect(spyBefore2.calledBefore(spyBefore)).to.be(true)
+    })
   })
 
   describe('.after()', function() {
@@ -90,13 +122,11 @@ describe('advice', function() {
         obj = {
           fn: function(val) {
             num += val * 2
-            console.log(num)
             return num
           }
         },
         afterFn = function(val) {
           num += val
-          console.log(num)
           return num
         },
         spy = sinon.spy(afterFn)
@@ -131,6 +161,40 @@ describe('advice', function() {
       expect(spyBase.calledOnce).to.be(true)
       expect(spyAfter.calledOnce).to.be(true)
       expect(spyAfter.calledAfter(spyBase)).to.be(true)
+    })
+
+    it('should allow multiple after functions', function() {
+      var num = 0,
+        obj = {
+          fn: function(val) {
+            num += val * 2
+            return num
+          }
+        },
+        afterFn = function(val) {
+          num += val
+          return num
+        },
+        afterFn2 = function(val) {
+          num += val + 1
+          return num
+        },
+        spyBase = sinon.spy(obj, 'fn'),
+        spyAfter = sinon.spy(afterFn),
+        spyAfter2 = sinon.spy(afterFn2)
+
+      sut.call(obj)
+      obj.after('fn', spyAfter)
+      obj.after('fn', spyAfter2)
+
+      // The returned value is the one from the original method!
+      expect(obj.fn(4)).to.be(8)
+      expect(num).to.be(17)
+      expect(spyBase.calledOnce).to.be(true)
+      expect(spyAfter.calledOnce).to.be(true)
+      expect(spyAfter2.calledOnce).to.be(true)
+      expect(spyAfter.calledAfter(spyBase)).to.be(true)
+      expect(spyAfter2.calledAfter(spyAfter)).to.be(true)
     })
   })
 
@@ -169,11 +233,35 @@ describe('advice', function() {
     })
 
     it('should call the hijack method before the original', function(done) {
-      var obj = {
-        doAsync: function(text, cb) {
-          
-        }
-      }
+      var str = 'test',
+        obj = {
+          base: function(text, cb) {
+            str += 'base'
+            cb(str)
+          }
+        },
+        hijack = function(text, cb) {
+          str += 'hijack'
+          cb(str)
+        },
+        spyBase = sinon.spy(obj, 'base'),
+        spyHijack = sinon.spy(hijack)
+
+      sut.call(obj)
+      obj.base(str, function(text) {
+        expect(text).to.be('testbase')
+        expect(str).to.be('testbase')
+
+        str = 'test'
+        obj.hijackBefore('base', spyHijack)
+        obj.base(str, function(text) {
+          expect(text).to.be('testhijackbase')
+          // Called twice because once without hijack
+          expect(spyBase.calledTwice).to.be(true)
+          expect(spyHijack.calledOnce).to.be(true)
+          done()
+        })
+      })
     })
   })
 })
