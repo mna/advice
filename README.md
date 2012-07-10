@@ -49,11 +49,11 @@ Wraps the method identified by `methodName` and passes the original method as fi
 
 ### .hijackBefore(methodName, fn[, firstArgIsError])
 
-Wraps the method identified by `methodName` so that when it gets called, the new method is called first. It basically chains the methods in this order: **newFn->privateCb->oriFn->oriCb**. It presumes the last argument is a callback function. If the new method returns an error as first argument, and `firstArgIsError` is set to `true`, then the original method is skipped and the error is sent to the original callback as first argument.
+For **callback-based methods**, wraps the method identified by `methodName` so that when it gets called, the new method is called first. It basically chains the methods in this order: **newFn->privateCb->oriFn->oriCb**. It presumes the last argument is a callback function. If the new method returns an error as first argument, and `firstArgIsError` is set to `true`, then the original method is skipped and the error is sent to the original callback as first argument.
 
 ### .hijackAfter(methodName, fn[, firstArgIsError])
 
-Wraps the method identified by `methodName` so that when it gets called, the original method is called first and the new method is called next. It basically chains the methods in this order: **oriFn->privateCb->newFn->oriCb**. It presumes the last argument is a callback function. If the original method returns an error as first argument, and `firstArgIsError` is set to `true`, then the new method is skipped and the error is sent to the original callback as first argument.
+For **callback-based methods**, wraps the method identified by `methodName` so that when it gets called, the original method is called first and the new method is called next. It basically chains the methods in this order: **oriFn->privateCb->newFn->oriCb**. It presumes the last argument is a callback function. If the original method returns an error as first argument, and `firstArgIsError` is set to `true`, then the new method is skipped and the error is sent to the original callback as first argument.
 
 ## LICENSE
 
