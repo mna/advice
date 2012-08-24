@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/PuerkitoBio/advice.png)](http://travis-ci.org/PuerkitoBio/advice)
 # Advice Functional Mixin
 
 This tiny library implements the advice functional mixin presented in Twitter's [Angus Croll][croll]'s presentation [How we learned to stop worrying and love Javascript][slides].
